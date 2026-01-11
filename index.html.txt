@@ -1,0 +1,224 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>LOVE ARCADE ❤️</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+<style>
+@keyframes neon {
+  0% { box-shadow: 0 0 10px #ff4fd8; }
+  50% { box-shadow: 0 0 30px #00fff7; }
+  100% { box-shadow: 0 0 10px #ff4fd8; }
+}
+
+body {
+  background: radial-gradient(circle, #140018, #000);
+  color: #ff4fd8;
+  font-family: 'Press Start 2P', cursive;
+  text-align: center;
+  margin: 0;
+}
+
+#game {
+  max-width: 720px;
+  margin: 40px auto;
+  padding: 30px;
+  border: 5px solid #ff4fd8;
+  background: #000;
+  animation: neon 2s infinite;
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 20px;
+}
+
+#fase {
+  color: #00fff7;
+  margin-bottom: 10px;
+}
+
+#vidas {
+  margin-bottom: 25px;
+}
+
+#pergunta {
+  font-size: 14px;
+  margin-bottom: 25px;
+}
+
+button {
+  width: 100%;
+  margin: 10px 0;
+  padding: 15px;
+  font-family: 'Press Start 2P';
+  font-size: 12px;
+  background: #ff4fd8;
+  color: black;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #00fff7;
+}
+
+#mensagem {
+  margin-top: 25px;
+  font-size: 12px;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<div id="game">
+  <h1>💖 LOVE ARCADE 💖</h1>
+  <div id="fase"></div>
+  <div id="vidas"></div>
+  <div id="pergunta"></div>
+  <div id="respostas"></div>
+  <div id="mensagem"></div>
+</div>
+
+<!-- SONS ARCADE -->
+<audio id="clickSound" src="https://www.soundjay.com/buttons/sounds/button-16.mp3"></audio>
+<audio id="winSound" src="https://www.soundjay.com/misc/sounds/arcade-game-complete-1.mp3"></audio>
+<audio id="errorSound" src="https://www.soundjay.com/buttons/sounds/button-10.mp3"></audio>
+<audio id="victorySound" src="https://www.soundjay.com/misc/sounds/game-bonus-2.mp3"></audio>
+
+<script>
+const fases = [
+  {
+    pergunta: "🎮 FASE 1: Quantos anos estamos juntos?",
+    respostas: ["1", "2", "3", "Desde sempre 😏"],
+    correta: "3",
+    premio: "🔥 ACERTO! 3 anos e contando!"
+  },
+  {
+    pergunta: "🎮 FASE 2: O que eu mais faço com você?",
+    respostas: ["Te irrito", "Te faço rir", "Te encho de beijo", "Tudo isso"],
+    correta: "Tudo isso",
+    premio: "😂 PACOTE COMPLETO!"
+  },
+  {
+    pergunta: "🎮 FASE 3: Quem sempre tem razão?",
+    respostas: ["Eu", "Você", "Depende", "Você (óbvio)"],
+    correta: "Você (óbvio)",
+    premio: "😅 SABE JOGAR!"
+  },
+  {
+    pergunta: "🎂 FASE ESPECIAL: O que comemoramos dia 16 de setembro?",
+    respostas: ["Aniversário", "Casamento", "3 anos juntos", "Evento lendário"],
+    correta: "3 anos juntos",
+    premio: "🎉 DATA SAGRADA DESBLOQUEADA!"
+  },
+  {
+    pergunta: "👾 FINAL BOSS: Vale a pena continuar comigo?",
+    respostas: [
+      "Sim ❤️",
+      "Óbvio",
+      "Com certeza",
+      "Todas acima"
+    ],
+    correta: "Todas acima",
+    premio: "🏆 FINAL BOSS DERROTADO!"
+  }
+];
+
+let faseAtual = 0;
+let vidas = 3;
+let faseSecretaLiberada = false;
+
+const clickSound = document.getElementById("clickSound");
+const winSound = document.getElementById("winSound");
+const errorSound = document.getElementById("errorSound");
+const victorySound = document.getElementById("victorySound");
+
+const faseDiv = document.getElementById("fase");
+const vidasDiv = document.getElementById("vidas");
+const perguntaDiv = document.getElementById("pergunta");
+const respostasDiv = document.getElementById("respostas");
+const mensagemDiv = document.getElementById("mensagem");
+
+function carregarFase() {
+  const fase = fases[faseAtual];
+  faseDiv.textContent = `Fase ${faseAtual + 1}`;
+  vidasDiv.textContent = `❤️ Vidas: ${vidas}`;
+  perguntaDiv.textContent = fase.pergunta;
+  respostasDiv.innerHTML = "";
+  mensagemDiv.textContent = "";
+
+  fase.respostas.forEach(resposta => {
+    const btn = document.createElement("button");
+    btn.textContent = resposta;
+    btn.onclick = () => responder(resposta);
+    respostasDiv.appendChild(btn);
+  });
+}
+
+function responder(resposta) {
+  clickSound.play();
+  const fase = fases[faseAtual];
+
+  if (resposta === fase.correta) {
+    winSound.play();
+    mensagemDiv.textContent = fase.premio;
+    faseAtual++;
+
+    if (faseAtual === fases.length) {
+      faseSecretaLiberada = true;
+    }
+
+    setTimeout(() => {
+      if (faseAtual < fases.length) {
+        carregarFase();
+      } else {
+        finalDoJogo();
+      }
+    }, 1500);
+  } else {
+    errorSound.play();
+    vidas--;
+    mensagemDiv.textContent = "💔 ERROU! Mas relaxa 😅";
+    vidasDiv.textContent = `❤️ Vidas: ${vidas}`;
+
+    if (vidas === 0) {
+      setTimeout(gameOver, 1500);
+    }
+  }
+}
+
+function gameOver() {
+  alert("☠️ GAME OVER ☠️\nMas meu amor não acaba ❤️");
+  faseAtual = 0;
+  vidas = 3;
+  carregarFase();
+}
+
+function finalDoJogo() {
+  victorySound.play();
+  perguntaDiv.textContent = "";
+  respostasDiv.innerHTML = "";
+  faseDiv.textContent = "🏆 JOGO ZERADO 🏆";
+  vidasDiv.textContent = "";
+
+  mensagemDiv.innerHTML = `
+  ❤️❤️❤️❤️❤️<br><br>
+  Você zerou o LOVE ARCADE!<br><br>
+  Mas calma...<br><br>
+  ${faseSecretaLiberada ? "🔓 FASE SECRETA DESBLOQUEADA!" : ""}
+  <br><br>
+  Aperte F5 😈
+  `;
+}
+
+carregarFase();
+</script>
+
+</body>
+</html>
